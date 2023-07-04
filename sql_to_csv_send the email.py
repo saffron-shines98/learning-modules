@@ -5,24 +5,36 @@ from email.mime.image import MIMEImage
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 import config
-import csv
+import pandas
 class Email_To_Client:
+    #connect_smtp_server funtion helps to establish the smtp connection
     def connect_smtp_server(self):
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
         server.login("surajkesarwani2@gmail.com", config.gmailpass)
         return server
+    #get_data_from_db funtion help to estsblish the connection by using Con_file(DB Connection File) and getting the data from table 
     def get_data_from_db(self):
         DB= Con.db
         cur = DB.cursor()
         query = "select Name, Age from data230"
         cur.execute(query)
         All_data = cur.fetchall()
+    #db_data_to_csv is taking the data and convert this to csv by using pandas library
     def db_data_to_csv(self):
-        with open("data.csv", "w", newline="") as csvfile:
-            writer = csv.writer(csvfile)
-            writer.writerow(["Name", "Age"])
-            writer.writerows(self.All_data)
+        name=[]
+        age=[]
+        for Name ,Age in self.All_data:
+            name.append(Name)
+            age.append(Age)
+            df={
+                'Name ':name,
+                'Age':age
+                }
+            dataframe=pd.DataFrame(df)
+            dt_csv=dt.to_csv("data.csv")
+
+    #email_content function is creating the content for email while using email.mime library package
     def email_content(self):
         sender = "surajkesarwani2@gmail.com"
         reciever= "surajkesarwani2@gmail.com"
@@ -39,6 +51,7 @@ class Email_To_Client:
         mssg["to"] = reciever
         mssg["subject"] = subject
         mssg.attach(MIMEText(msg, 'plain'))
+    #attach_images_csv_files fuction is attaching the image and csv file in the email while Mimeimage and Mimeapplication Email Package
     def attach_images_csv_files(self):
         with open('download.jpeg', 'rb') as img_file:
             img = MIMEImage(img_file.read())
