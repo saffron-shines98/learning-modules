@@ -21,9 +21,10 @@ class jsonFile:
                         return None
               except Exception as e:
                    print("title key is not available",e)
-# data is a object of jsonfile
-data = jsonFile()
-# data.get_data is Load the JSON data from the file
-data.json_data('demo.json')
-# data.get_json_detail is extract and print the titles from the JSON data
-data.get_json_detail("demo.json")
+#Main fucntion is use to call all fucntion sequentially
+         def main(self):
+              self.json_data("demo.json")
+              self.get_json_detail("demo.json")
+
+data=jsonFile()
+data.main()
