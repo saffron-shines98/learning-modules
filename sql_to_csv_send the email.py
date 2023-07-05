@@ -73,12 +73,18 @@ class Email_To_Client:
     def send_email(self):
         self.server.send_message(self.mssg)
         self.server.close()
+    #Maine fuction is use to call all function sequentially
+     def main(self):
+        self.connect_smtp_server()
+        self.get_data_from_db()
+        self.db_data_to_csv()
+        self.email_content()
+        self.attach_images_csv_files()
+        self.send_email()
 
 client_email=Email_To_Client()
-client_email.connect_smtp_server()
-client_email.get_data_from_db()
-client_email.db_data_to_csv()
-client_email.email_content()
-client_email.attach_images_csv_files()
-client_email.send_email()
+client_email.main()
+
+
+
 
