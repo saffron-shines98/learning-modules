@@ -1,1 +1,48 @@
+import mongo
+import pymongo
+class Mongooperation:
+    def __init__(self):
+        try:
+            s = mongo.client
+            print("connection established", s)
+        except Exception as e:
+            print(e,"Unsecured connection")
+
+    def create_db_collection(self):
+        self.db=mongo.client["mydb"]
+        self.collections2=self.db["Employee_Detail"]
+
+    def insert(self):
+        data1 = [{"name": "Suraj", "age": 25, "sirname": "kesarwani"},
+                 {"name": "Rj", "age": 27, "sirname": "Jaiswal"},
+                 {"name": "Raj", "age": 15, "sirname": "verma"},
+                 {"name": "Sam", "age": 25, "sirname": "Shah"},
+                 {"name": "Lucky", "age": 22, "sirname": "Singh"},
+                 {"name": "Sir", "age": 28, "sirname": "khan"},
+                 {"name": "Arjun", "age": 23, "sirname": "Singh"}]
+        self.collections2.insert_many(data1)
+
+        print("Data inserted")
+    def Read(self):
+        info=self.collections2.find_one({"name":"Raj"})
+        print(info)
+
+    def update(self):
+        previous={"name":"Raj"}
+        nextt={"$set":{"age":32}}
+        self.collections2.update_one(previous,nextt)
+        print("Values are updated")
+    def delete(self):
+        record={"name":"Raj"}
+        self.collections2.delete_one(record)
+        print("Values are deleted")
+
+    def main(self):
+        self.create_db_collection()
+        self.insert()
+        self.update()
+        self.delete()
+
+obj=Mongooperation()
+obj.main()
 
