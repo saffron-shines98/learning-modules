@@ -1,0 +1,26 @@
+from pymongo import MongoClient
+from flask import Flask,jsonify
+app=Flask(__name__)
+client=MongoClient("mongodb+srv://test:test@cluster0.orthvww.mongodb.net/?retryWrites=true&w=majority")
+db=client["mydb"]
+collection3=db["Employee_Detail"]
+@app.route("/employees", methods=["GET"])
+def get_employees():
+    employees = list(collection3.find())
+    employee_list = []
+    for employee in employees:
+        employee_list.append(employee)
+    return jsonify(employee)
+
+
+
+@app.route("/employees/<int:employee_id>", methods=["GET"])
+def get_employee(employee_id):
+    employee = collection3.find_one({"_id": employee_id})
+    if employee:
+        return jsonify(employee)
+    else:
+        return jsonify({"message": "Employee not found"})
+
+if __name__=="__main__":
+    app.run()
