@@ -1,3 +1,4 @@
+import datetime
 import mongo
 class Mongooperation:
 #init is initialize methoad which called automatically when object is created , here this is use create the connection from db
@@ -13,13 +14,13 @@ class Mongooperation:
         self.collections2=self.db["Employee_Detail"]
 # Insert function we are use here to insert the data in database
     def insert(self):
-        data1 = [{"_id":10,"name": "Suraj", "age": 25, "sirname": "kesarwani"},
-                 {"_id":11,"name": "Rj", "age": 27, "sirname": "Jaiswal"},
-                 {"_id":12,"name": "Raj", "age": 15, "sirname": "verma"},
-                 {"_id":13,"name": "loon", "age": 25, "sirname": "Shah"},
-                 {"_id":14,"name": "hansh", "age": 22, "sirname": "Singh"},
-                 {"_id":15,"name": "Jade", "age": 28, "sirname": "khan"},
-                 {"_id":16,"name": "Amin", "age": 23, "sirname": "Singh"}]
+        data1 = [{"_id":24,"date":datetime.datetime(2023, 7, 14),"name": "Jem", "age": 25, "sirname": "kesarwani"},
+                 {"_id":25,"date":datetime.datetime(2023, 7, 13),"name": "Jemmy", "age": 27, "sirname": "Jaiswal"},
+                 {"_id":26,"date":datetime.datetime(2023, 7, 12),"name": "Adil", "age": 15, "sirname": "verma"},
+                 {"_id":27,"date":datetime.datetime(2023, 7, 11),"name": "Ankush", "age": 25, "sirname": "Shah"},
+                 {"_id":28,"date":datetime.datetime(2023, 7, 10),"name": "harsh", "age": 22, "sirname": "Singh"},
+                 {"_id":29,"date":datetime.datetime(2023, 7, 9),"name": "Binny", "age": 28, "sirname": "khan"},
+                 {"_id":30,"date":datetime.datetime(2023, 7, 8),"name": "Amain", "age": 23, "sirname": "Singh"}]
         self.collections2.insert_many(data1)
         print("Data inserted")
 #Read funtion is used to fetch the data from the collection by using find_one/many function
@@ -40,13 +41,30 @@ class Mongooperation:
         record={"_id":16}    # here i am delete the document accordingly unqiuely identified id
         self.collections2.delete_one(record)
         print("Values are deleted")
+# delete_daterange funtion is delete the data according to the given date range wise
+    def delete_daterange(self,start_date,end_date):
+        query={"date":{"$gte":start_date,
+                       "$lte":end_date}}
+        result=self.collections2.delete_many(query)
+        print("Given data are deleted")
+# delete_id_wise funtion is delete the data according to the give number
+    def delete_id_wise(self,id_less_than_number):
+        query={"_id":{"$lte":id_less_than_number}}
+        rerult=self.collections2.delete_many(query)
+        print("Data for the id's that is less than given number are deleted")
+
 #main funtion is used to call the funtion accordingly
     def main(self):
+        start_date=datetime.datetime(2023, 7, 8)
+        end_date=datetime.datetime(2023,7,10)
         self.create_db_collection()
         # self.insert()
         # self.update()
         # self.delete()
-        self.Read()
+        # self.delete_daterange(start_date,end_date)
+        self.delete_id_wise(3)
+
+        # self.Read()
 
 
 obj=Mongooperation()
