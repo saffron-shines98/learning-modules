@@ -1,26 +1,88 @@
-from pymongo import MongoClient
-from flask import Flask,jsonify
-app=Flask(__name__)
-client=MongoClient("mongodb+srv://test:test@cluster0.orthvww.mongodb.net/?retryWrites=true&w=majority")
-db=client["mydb"]
-collection3=db["Employee_Detail"]
-@app.route("/employees", methods=["GET"])
-def get_employees():
-    employees = list(collection3.find())
-    employee_list = []
-    for employee in employees:
-        employee_list.append(employee)
-    return jsonify(employee)
+import mongo
+from flask import Flask, jsonify, request
 
+class EmployeeAPI:
+    def __init__(self):
+        app = Flask(__name__)
+        self.client = mongo.client
+        self.db = self.client["mydb"]
+        self.collection3 = self.db["Employee_Detail"]
+        self.setup_routes(app)
 
+    def setup_routes(self, app):
+        @app.route("/employees", methods=["GET"])
+        def get_employees():
+            employees = list(self.collection3.find())
+            employee_list = []
+            for employee in employees:
+                employee['_id'] = str(employee['_id'])
+                employee_list.append(employee)
+            return jsonify(employee_list)
 
-@app.route("/employees/<int:employee_id>", methods=["GET"])
-def get_employee(employee_id):
-    employee = collection3.find_one({"_id": employee_id})
-    if employee:
-        return jsonify(employee)
-    else:
-        return jsonify({"message": "Employee not found"})
+        @app.route("/employees/<int:employee_id>", methods=["GET"])
+        def get_employee(employee_id):
+            employee = self.collection3.find_one({"_id": employee_id})
+            if employee:
+                return jsonify(employee)
+            else:
+                return jsonify({"message": "Employee not found"})
 
-if __name__=="__main__":
-    app.run()
+        @app.route("/employees/insert", methods=["POST"])
+        def insert_employee():
+            insert_data = request.get_json()
+            if insert_data:
+                self.collection3.insert_many(insert_data)
+                return jsonify({"message": "Employee data is Inserted"}), 200
+            else:
+                return jsonify({"message": "Employee data is not present"}), 400
+
+        @app.route("/employees/update", methods=["POST"])
+        def update_employee():
+            request_data = request.get_json()
+            previous_update_data_id = request_data.get("id")
+            nexxt_data = request_data.get("name")
+            if previous_update_data_id and nexxt_data:
+                filter_query = {"_id": previous_update_data_id}
+                nexxt = {"$set": {"name": nexxt_data}}
+                self.collection3.update_one(filter_query, nexxt)
+                return jsonify({"message": "Employee data is updated"}), 200
+            else:
+                return jsonify({"message": "Employee data is not present"}), 400
+
+        @app.route("/employees/delete", methods=["POST"])
+        def delete_employee():
+            delete_data_id = request.get_json()
+            if delete_data_id:
+                self.collection3.delete_one(delete_data_id)
+                return jsonify({"message": "Employee data is deleted"}), 200
+            else:
+                return jsonify({"message": "Employee data is not present"}), 400
+
+        @app.route("/employees/daterange", methods=["POST"])
+        def delete_employee_date_range():
+            request_data = request.get_json()
+            start_date = request_data.get("start_date")
+            end_date = request_data.get("end_date")
+            query = {"date": {"$gte": start_date, "$lte": end_date}}
+            if start_date and end_date:
+                self.collection3.delete_many(query)
+                return jsonify({"message": "All the data in the given date range are deleted"}), 200
+            else:
+                return jsonify({"message": "Date range is not given"}), 400
+
+        @app.route("/employees/idwise", methods=["POST"])
+        def delete_employee_id_wise():
+            delete_employee_id_less_than_number = request.get_json()
+            query = {"_id": {"$lte": delete_employee_id_less_than_number}}
+            if delete_employee_id_less_than_number:
+                self.collection3.delete_many(query)
+                return jsonify({"message": "All the data with ID less than or equal to the given value are deleted"}), 200
+            else:
+                return jsonify({"message": "ID value is not given"}), 400
+
+    def run(self):
+        self.app.run()
+
+if __name__ == "__main__":
+    employee_api = EmployeeAPI()
+    employee_api.run()
