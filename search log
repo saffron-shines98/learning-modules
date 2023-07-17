@@ -1,0 +1,163 @@
+import mongo
+import json
+class json_mongo:
+    def __init__(self):
+        try:
+            s = mongo.client
+            print("connection established", s)
+        except Exception as e:
+            print(e,"Unsecured connection")
+
+    def create_db_collection(self):
+        self.db=mongo.client["Craftsvilla"]
+        self.collections2=self.db["Search-log"]
+
+    def json_data(self, file_name):
+        try:
+            with open(file_name) as s:
+                jsonload = json.load(s)
+                return jsonload
+        except FileNotFoundError as e:
+            print("file not found", e)
+            return None
+        except Exception as e:
+            print("Error loading JSON:", e)
+            return None
+    def insert_data(self,File_Name):
+        json_data = self.json_data(File_Name)
+        if json_data:
+            data_insert = self.collections2.insert_many(json_data)
+            print("Data is Inserted")
+        else:
+            print("File is not there")
+    def txn(self,txn_id):
+        if txn_id:
+            search=self.collections2.find({"context.transaction_id":txn_id})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                provider = item.get('message', [{}])[0].get('catalog', [{}])[0].get('bpp/providers', [{}])[0].get('descriptor', {}).get('id')
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+                print("Provider Id of the Txn is =",provider)
+        else:
+            print("Transaction Id is Not Found ")
+    def bpp(self,bpp_id):
+        if bpp_id:
+            search=self.collections2.find({"bpp_id":bpp_id})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+        else:
+            print("Bpp Id Id is Not Found ")
+
+    def bap(self, bap_id):
+        if bap_id:
+            search = self.collections2.find({"bap_id": bap_id})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+        else:
+            print("Bap Id Id is Not Found ")
+
+    def bpp(self, bpp_id):
+        if bpp_id:
+            search = self.collections2.find({"bpp_id": bpp_id})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+        else:
+            print("Bpp Id Id is Not Found ")
+
+    def Action(self, action):
+        if action:
+            search = self.collections2.find({"action": action})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+        else:
+            print("Action Type is Not Found ")
+
+    def Timestamp(self, timestamp):
+        if timestamp:
+            search = self.collections2.find({"timestamp": timestamp})
+            # count = self.collections2.count_documents({"context.transaction_id": txn_id})
+            # print("Number of matching documents:", count)
+            for item in search:
+                timestamp = item.get('context', {}).get('timestamp', {})
+                transaction_id = item.get('context', {}).get('transaction_id', {})
+                bpp_id = item.get('context', {}).get('bpp_id', {})
+                bap_id = item.get('context', {}).get('bap_id', {})
+                action = item.get('context', {}).get('action', {})
+                print("Timestamp of the Txn is = ", timestamp)
+                print("Transaction id is = ", transaction_id)
+                print("Bpp Id of the Txn is = ", bpp_id)
+                print("Bap Id of the Txn is = ", bap_id)
+                print("Action of the Txn is = ", action)
+        else:
+            print("Timestamp is Not Found ")
+
+
+    def main(self):
+        self.create_db_collection()
+        # self.json_data("Log3.json")
+        # self.insert_data("Log3.json")
+        self.txn("723ab0a4-768d-42f3-ad86-84220efdb0e5")
+        # self.bap()
+        # self.bpp()
+        # self.Action()
+        # self.Timestamp()
+created=json_mongo()
+created.main()
+
+
+
+
