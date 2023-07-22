@@ -8,10 +8,13 @@ class json_mongo:
         except Exception as e:
             print(e,"Unsecured connection")
 
-    def create_db_collection(self):
-        self.db=mongo.client["Craftsvilla"]
-        self.collections2=self.db["Search-log"]
+#connect_db_and_collection funtion is take the database name and collection name
+    def connect_db_and_collection(self):
+        self.db=mongo.client[mongo.database_name]    # Database Name  db is a database object
+        self.collections2=self.db[mongo.collection_name] # Collection Name and collection2 is a collection object
 
+
+# Json data takes the json file and loads it
     def json_data(self, file_name):
         try:
             with open(file_name) as s:
@@ -23,6 +26,8 @@ class json_mongo:
         except Exception as e:
             print("Error loading JSON:", e)
             return None
+
+# Inserta data funtion is takes the loaded json and insert in the database
     def insert_data(self,File_Name):
         json_data = self.json_data(File_Name)
         if json_data:
@@ -30,12 +35,16 @@ class json_mongo:
             print("Data is Inserted")
         else:
             print("File is not there")
-    def txn(self,txn_id):
+
+# TXN Function is takes the transaction id from user and finds in the database
+    def txn_id(self,txn_id):
         if txn_id:
-            search=self.collections2.find({"context.transaction_id":txn_id})
+            search=self.collections2.find({"context.transaction_id":txn_id},{"context.timestamp": 1,"context.transaction_id":1, "context.bpp_id": 1, "context.bap_id": 1, "context.action": 1,"_id":1,
+             "message.catalog.bpp/providers.id": 1, "message.catalog.bpp/providers.descriptor.name": 1}).limit(1)
             # count = self.collections2.count_documents({"context.transaction_id": txn_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id=item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -44,6 +53,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name=item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("Log Id of TXN is = ",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -53,12 +63,20 @@ class json_mongo:
                 print("Provider Name of the Txn is =", provider_name)
         else:
             print("Transaction Id is Not Found ")
+
+# bpp Function is takes the bpp id from user and finds in the database
     def bpp(self,bpp_id):
         if bpp_id:
-            search=self.collections2.find({"context.bpp_id":bpp_id})
+            search = self.collections2.find({"context.bpp_id": bpp_id},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(5)
+
             # count = self.collections2.count_documents({"context.bpp_id": bpp_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -67,6 +85,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is = ",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -79,12 +98,18 @@ class json_mongo:
         else:
             print("Bpp Id Id is Not Found ")
 
+# bap Function is takes the bap id from user and finds in the database
     def bap(self, bap_id):
         if bap_id:
-            search = self.collections2.find({"context.bap_id": bap_id})
+            search = self.collections2.find({"context.bap_id": bap_id},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(5)
             # count = self.collections2.count_documents({"context.transaction_id": txn_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -93,6 +118,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is = ",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -104,12 +130,19 @@ class json_mongo:
         else:
             print("Bap Id Id is Not Found ")
 
+#Action Function is takes the Action from user and finds in the database
     def Action(self, action):
         if action:
-            search = self.collections2.find({"context.action": action})
+            search = self.collections2.find({"context.action": action},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(5)
+
             # count = self.collections2.count_documents({"context.transaction_id": txn_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -118,6 +151,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is = ",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -129,12 +163,19 @@ class json_mongo:
         else:
             print("Action Type is Not Found ")
 
+# Timestamp Function is takes the timestamp from user and finds in the database
     def Timestamp(self, timestamp):
         if timestamp:
-            search = self.collections2.find({"context.timestamp": timestamp})
+            search = self.collections2.find({"context.timestamp": timestamp},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(5)
+
             # count = self.collections2.count_documents({"context.transaction_id": txn_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -143,6 +184,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is = ",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -153,20 +195,30 @@ class json_mongo:
                 print()
         else:
             print("Timestamp is Not Found ")
+
+# provider Function is takes the provider_id from user and finds in the database
     def provider(self, provider_id):
         if provider_id:
-            search=self.collections2.find({"message.catalog.bpp/providers.id":provider_id})
-            # count=self.collections2.count_documents({"message.catalog.bpp/providers.id":provider_id})
+            search = self.collections2.find({"message.catalog.bpp/providers.id":provider_id},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(5)
+
+            # count = self.collections2.count_documents({"context.provider_id": provider_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
                 bap_id = item.get('context', {}).get('bap_id', {})
                 action = item.get('context', {}).get('action', {})
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
-                provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
+                provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get(
+                    'descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is = ", log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -175,15 +227,23 @@ class json_mongo:
                 print("Provider Id of the Txn is =", provider)
                 print("Provider Name of the Txn is =", provider_name)
                 print()
-
         else:
-            print("Provider is Not Found ")
+            print("Provider_id is Not Found ")
+
+
+# provider_name Function is takes the provider_name from user and finds in the database
     def provider_name(self, provider_name):
         if provider_name:
-            search=self.collections2.find({"message.catalog.bpp/providers.descriptor.name":provider_name})
+            search = self.collections2.find({"message.catalog.bpp/providers.descriptor.name":provider_name},
+                                            {"context.timestamp": 1, "context.transaction_id": 1, "context.bpp_id": 1,
+                                             "context.bap_id": 1, "context.action": 1, "_id": 1,
+                                             "message.catalog.bpp/providers.id": 1,
+                                             "message.catalog.bpp/providers.descriptor.name": 1}).limit(2)
+
             # count=self.collections2.count_documents({"message.catalog.bpp/providers.id":provider_id})
             # print("Number of matching documents:", count)
             for item in search:
+                log_id = item.get('_id', {})
                 timestamp = item.get('context', {}).get('timestamp', {})
                 transaction_id = item.get('context', {}).get('transaction_id', {})
                 bpp_id = item.get('context', {}).get('bpp_id', {})
@@ -192,6 +252,7 @@ class json_mongo:
                 provider = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('id')
                 provider_name = item.get('message', {}).get('catalog', {}).get('bpp/providers', [{}])[0].get('descriptor', {}).get('name')
                 print()
+                print("log id of the TXN is =",log_id)
                 print("Timestamp of the Txn is = ", timestamp)
                 print("Transaction id is = ", transaction_id)
                 print("Bpp Id of the Txn is = ", bpp_id)
@@ -207,19 +268,15 @@ class json_mongo:
 
 
     def main(self):
-        self.create_db_collection()
+        self.connect_db_and_collection()
         # self.json_data("Log3.json")
         # self.insert_data("Log3.json")
-        # self.txn("723ab0a4-768d-42f3-ad86-84220efdb0e5")
-        # self.bap()
+        # self.txn_id("723ab0a4-768d-42f3-ad86-84220efdb0e5")
+        # self.bap("ondc.paytm.com")
         # self.bpp("ondc.ideamasters.store")
-        # self.Action()
-        # self.Timestamp()
-        # self.provider("225620")
-        self.provider_name("Y B DESIGNER STUDIO")
-created=json_mongo()
-created.main()
-
-
-
-
+        # self.Action("on_search")
+        # self.Timestamp("2023-07-17T06:34:11.177Z")
+        self.provider("225620")
+        # self.provider_name("Y B DESIGNER STUDIO")
+mongo_object=json_mongo()
+mongo_object.main()
