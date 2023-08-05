@@ -1,0 +1,28 @@
+class Encryption:
+    def __init__(self):
+        self.curser=self.c.cursor()
+        self.app = Flask(__name__)
+        self.setup_routes()
+
+    def setup_routes(self):
+        @self.app.route("/user/login", methods=["POST"])
+        def encrypt_details():
+            self.curser.execute("select Employee_name, phone from cv_employees")
+            result= self.curser.fetchall()
+            exp_time=datetime.now() + timedelta(minutes=15)
+            exp_epoch_time=int(exp_time.timestamp())
+            payload={
+                "payload":result,
+                "exp":exp_epoch_time
+            }
+            tokan = jwt.encode(payload,private_key, algorithm="RS256")
+            return make_response({"token":tokan})
+
+
+
+    def run(self):
+        self.app.run()
+
+if __name__ == "__main__":
+    sso = Encryption()
+    sso.run()
